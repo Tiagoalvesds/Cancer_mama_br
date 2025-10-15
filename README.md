@@ -92,8 +92,8 @@ pip (gerenciador de pacotes Python)
 
 1. Clone o repositório
 bash
-git clone https://github.com/seu-usuario/dashboard-cancer-mama.git
-cd dashboard-cancer-mama
+git clone https://github.com/seu-usuario/dashboard-cancer-mama.git](https://github.com/Tiagoalvesds/Cancer_mama_br
+
 
 2. Crie um ambiente virtual (recomendado)
 bash
@@ -115,20 +115,23 @@ text
 http://localhost:8501
 
 🗂️ Estrutura do Projeto
+
 text
+
 dashboard-cancer-mama/
 │
-├── app.py                          # Aplicação principal Streamlit
+├── app.py # Aplicação principal Streamlit
 ├── requirements.txt                # Dependências do projeto
-├── README.md                       # Documentação do projeto
-│
+├── README.md                       # Documentação do projeto│
 ├── bd/                             # Diretório de dados
+
 │   ├── mortalidade_tabela2.csv
 │   ├── nunca_mamografia_fig15.csv
 │   ├── mamografos_regiao_tabela10_total.csv
 │   └── tempo_laudo_rastreamento_tabela9.csv
 │
 └── assets/                         # Imagens e recursos
+
     └── screenshots/
 
     
@@ -205,20 +208,11 @@ Organizações não governamentais para advocacy
 
 Estudantes de saúde pública e medicina
 
-🔄 Atualizações Futuras
-Integração com API do DATASUS
-
-Análise temporal (séries históricas)
-
-Comparação internacional
-
-Alertas automáticos por email
-
-Relatórios em PDF automatizados
+--------------------------------------------
+Dados atualizados 2024
 
 Desenvolvido para salvar vidas através de dados 💝
 
-Dados atualizados em: 2024
-Última atualização do projeto: ${new Date().toLocaleDateString()}
+
 
 
