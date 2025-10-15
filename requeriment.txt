@@ -1,4 +1,6 @@
-app.py
-requirements.txt
-bd/
+streamlit
+pandas
+plotly
+numpy
+
 
