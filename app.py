@@ -12,17 +12,15 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Carregar dados
+# Carregar dados - CORRIGIDO PARA MESMO DIRETÓRIO
 @st.cache_data
 def carregar_dados():
-    base_path = "/home/iauser/1.Tiago_Alves/portfolio/cancer_mama/bd"
-    
     try:
-        # Carregar arquivos específicos conforme solicitado
-        mortalidade = pd.read_csv(f"{base_path}/mortalidade_tabela2.csv")
-        nunca_mamografia = pd.read_csv(f"{base_path}/nunca_mamografia_fig15.csv")
-        mamografos_regiao = pd.read_csv(f"{base_path}/mamografos_regiao_tabela10_total.csv")
-        tempo_laudo = pd.read_csv(f"{base_path}/tempo_laudo_rastreamento_tabela9.csv")
+        # Carregar arquivos do mesmo diretório
+        mortalidade = pd.read_csv("mortalidade_tabela2.csv")
+        nunca_mamografia = pd.read_csv("nunca_mamografia_fig15.csv")
+        mamografos_regiao = pd.read_csv("mamografos_regiao_tabela10_total.csv")
+        tempo_laudo = pd.read_csv("tempo_laudo_rastreamento_tabela9.csv")
         
         # Consolidar dados principais
         dados = mortalidade.merge(nunca_mamografia, on=['UF', 'Regiao'], how='left')
@@ -484,7 +482,13 @@ def main():
     dados = carregar_dados()
     
     if dados is None:
-        st.error("Não foi possível carregar os dados. Verifique os arquivos.")
+        st.error("Não foi possível carregar os dados. Verifique se todos os arquivos CSV estão no mesmo diretório:")
+        st.markdown("""
+        - `mortalidade_tabela2.csv`
+        - `nunca_mamografia_fig15.csv` 
+        - `mamografos_regiao_tabela10_total.csv`
+        - `tempo_laudo_rastreamento_tabela9.csv`
+        """)
         return
     
     # Calcular scores de criticidade
