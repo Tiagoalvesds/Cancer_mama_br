@@ -211,7 +211,7 @@ Estudantes de saúde pública e medicina
 --------------------------------------------
 Dados atualizados 2024
 
-Desenvolvido para salvar vidas através de dados 💝
+Desenvolvido para salvar vidas através de dados 🩷
 
 
 
