@@ -572,7 +572,7 @@ def main():
     
     # Footer
     st.markdown("---")
-    st.markdown("**Fonte**: INCA - Instituto Nacional de Câncer (Dados 2022-2023)")
+    st.markdown("**Fonte**: INCA - Instituto Nacional de Câncer (Dados 2022-2024)")
     st.markdown("**Criado para apoio à tomada de decisão em saúde pública**")
     st.markdown("*Desenvolvido por Tiago Alves - Cientista de Dados - https://www.linkedin.com/in/tiagoalvesds/*")
 
