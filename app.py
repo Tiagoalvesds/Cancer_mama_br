@@ -12,28 +12,30 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Carregar dados - CORRIGIDO PARA MESMO DIRETÓRIO
+# Carregar dados - CORRIGIDO PARA DADOS POR UF
 @st.cache_data
 def carregar_dados():
     try:
         # Carregar arquivos do mesmo diretório
         mortalidade = pd.read_csv("mortalidade_tabela2.csv")
         nunca_mamografia = pd.read_csv("nunca_mamografia_fig15.csv")
-        mamografos_regiao = pd.read_csv("mamografos_regiao_tabela10_total.csv")
+        mamografos_uf = pd.read_csv("mamografos_regiao_tabela10_total.csv")
+        mamografos_sus = pd.read_csv("mamografos_regiao_tabela11_SUS.csv")
         tempo_laudo = pd.read_csv("tempo_laudo_rastreamento_tabela9.csv")
+        
+        # Converter porcentagens para numérico
+        mamografos_uf['Utilizacao_%'] = mamografos_uf['Utilização(%)'].str.replace('%', '').astype(float)
         
         # Consolidar dados principais
         dados = mortalidade.merge(nunca_mamografia, on=['UF', 'Regiao'], how='left')
         dados = dados.merge(tempo_laudo, on=['UF', 'Regiao'], how='left')
         
-        # Adicionar dados de mamógrafos (agregar por região)
-        mamografos_agg = mamografos_regiao.groupby('Regiao').agg({
-            'Mamografos_existentes': 'sum',
-            'Mamografos_em_uso': 'sum'
-        }).reset_index()
-        mamografos_agg['Utilizacao_%'] = (mamografos_agg['Mamografos_em_uso'] / mamografos_agg['Mamografos_existentes'] * 100).round(1)
+        # CORREÇÃO: Usar dados específicos por UF (não por região)
+        dados = dados.merge(mamografos_uf[['UF', 'Utilizacao_%', 'Mamografos_existentes', 'Mamografos_em_uso']], 
+                           on='UF', how='left')
         
-        dados = dados.merge(mamografos_agg[['Regiao', 'Utilizacao_%']], on='Regiao', how='left')
+        # Adicionar dados do SUS
+        dados = dados.merge(mamografos_sus, on='UF', how='left')
         
         return dados
         
@@ -257,49 +259,66 @@ def criar_visao_rastreamento(dados, estado_selecionado):
     else:
         st.success("**BOM**: Menos de 20% de não rastreadas - situação satisfatória")
 
+def obter_observacao_sus(uf, dados):
+    """Retorna observação específica para cada estado"""
+    estado_data = dados[dados['UF'] == uf].iloc[0]
+    utilizacao = estado_data['Utilizacao_%']
+    mamografos_sus = estado_data['Mamografos_SUS']
+    mamografos_em_uso = estado_data['Mamografos_em_uso']
+    
+    if uf == 'PR':
+        return f"⚠️ DADO INCONSISTENTE: Utilização de {utilizacao}% (impossível), com {mamografos_em_uso} mamógrafos em uso para apenas {estado_data['Mamografos_existentes']} existentes, sendo {mamografos_sus} pelo SUS"
+    else:
+        return f"Utilização de {utilizacao}%, com {mamografos_em_uso} mamógrafos em uso, sendo {mamografos_sus} pelo SUS"
+
 def criar_visao_infraestrutura(dados, estado_selecionado):
-    """Cria visualização focada em infraestrutura"""
+    """Cria visualização focada em infraestrutura - CORRIGIDA"""
     st.header("🖥️ Infraestrutura de Mamógrafos")
     
-    # Dados por região
-    regiao_estado = dados[dados['UF'] == estado_selecionado]['Regiao'].iloc[0]
-    utilizacao_regiao = dados[dados['UF'] == estado_selecionado]['Utilizacao_%'].iloc[0]
+    estado_data = dados[dados['UF'] == estado_selecionado].iloc[0]
+    utilizacao_estado = estado_data['Utilizacao_%']
+    mamografos_sus = estado_data['Mamografos_SUS']
+    mamografos_existentes = estado_data['Mamografos_existentes']
+    mamografos_em_uso = estado_data['Mamografos_em_uso']
     
     col1, col2, col3 = st.columns(3)
     
     with col1:
         st.metric(
-            "Região",
-            regiao_estado,
-            "do estado selecionado"
+            "Utilização de Mamógrafos",
+            f"{utilizacao_estado:.1f}%",
+            help="% de mamógrafos existentes que estão em uso"
         )
     
     with col2:
         st.metric(
-            "Utilização de Mamógrafos",
-            f"{utilizacao_regiao:.1f}%",
-            "na região",
-            help="% de mamógrafos existentes que estão em uso"
+            "Mamógrafos do SUS",
+            f"{mamografos_sus:.0f}",
+            f"de {mamografos_existentes:.0f} existentes"
         )
     
     with col3:
-        if utilizacao_regiao > 80:
-            status = "❌ Sobrecarregada"
-        elif utilizacao_regiao > 60:
-            status = "⚠️  Em uso intenso"
+        if utilizacao_estado > 100:
+            status = "❌ Dados Inconsistentes"
+        elif utilizacao_estado > 80:
+            status = "✅ Boa Utilização"
+        elif utilizacao_estado > 60:
+            status = "⚠️ Capacidade Ociosa"
         else:
-            status = "✅ Capacidade ociosa"
+            status = "🔴 Baixa Utilização"
         st.metric(
-            "Situação da Infraestrutura",
+            "Situação",
             status,
-            "capacidade instalada"
+            "infraestrutura"
         )
     
-    st.info("""
-    **Nota**: Os dados de mamógrafos são agregados por região. Uma utilização acima de 80% indica 
-    possível sobrecarga do sistema, enquanto abaixo de 60% sugere capacidade ociosa que poderia 
-    ser melhor aproveitada.
-    """)
+    # OBSERVAÇÃO ESPECÍFICA DO ESTADO
+    observacao = obter_observacao_sus(estado_selecionado, dados)
+    
+    if estado_selecionado == 'PR':
+        st.error(f"**Observação - {estado_selecionado}:** {observacao}")
+    else:
+        st.info(f"**Observação - {estado_selecionado}:** {observacao}")
 
 def criar_visao_tempo_laudo(dados, estado_selecionado):
     """Cria visualização focada no tempo de laudo"""
@@ -478,7 +497,7 @@ def main():
     st.title("🎀 Câncer de Mama no Brasil 🎀 ")
     st.markdown("### Análise Integrada: Mortalidade, Rastreamento e Infraestrutura")
     
-    # Carregar dados
+    # Carregar dados CORRIGIDOS
     dados = carregar_dados()
     
     if dados is None:
@@ -487,6 +506,7 @@ def main():
         - `mortalidade_tabela2.csv`
         - `nunca_mamografia_fig15.csv` 
         - `mamografos_regiao_tabela10_total.csv`
+        - `mamografos_regiao_tabela11_SUS.csv`
         - `tempo_laudo_rastreamento_tabela9.csv`
         """)
         return
@@ -523,7 +543,8 @@ def main():
         **Fontes dos Dados:**
         - 🪦 Tabela 2: Mortalidade (2022)
         - 🩺 Figura 15: Rastreamento (PNS 2019)  
-        - 🖥️ Tabela 10: Mamógrafos (por região)
+        - 🖥️ Tabela 10: Mamógrafos (por UF)
+        - 🏥 Tabela 11: Mamógrafos SUS
         - ⏱️ Tabela 9: Tempo de laudo
         """)
     
