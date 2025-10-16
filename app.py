@@ -12,31 +12,29 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Carregar dados - CORRIGIDO PARA INCLUIR SUS
+# Carregar dados - CORRIGIDO PARA USAR APENAS UF
 @st.cache_data
 def carregar_dados():
     try:
         # Carregar arquivos do mesmo diretório
         mortalidade = pd.read_csv("mortalidade_tabela2.csv")
         nunca_mamografia = pd.read_csv("nunca_mamografia_fig15.csv")
-        mamografos_regiao = pd.read_csv("mamografos_regiao_tabela10_total.csv")
-        mamografos_sus = pd.read_csv("mamografos_regiao_tabela11_SUS.csv")  # NOVO
+        mamografos_uf = pd.read_csv("mamografos_regiao_tabela10_total.csv")
+        mamografos_sus = pd.read_csv("mamografos_regiao_tabela11_SUS.csv")
         tempo_laudo = pd.read_csv("tempo_laudo_rastreamento_tabela9.csv")
         
-        # Consolidar dados principais
-        dados = mortalidade.merge(nunca_mamografia, on=['UF', 'Regiao'], how='left')
-        dados = dados.merge(tempo_laudo, on=['UF', 'Regiao'], how='left')
+        # Converter porcentagens para numérico
+        mamografos_uf['Utilizacao_%'] = mamografos_uf['Utilização(%)'].str.replace('%', '').astype(float)
         
-        # Adicionar dados de mamógrafos (agregar por região)
-        mamografos_agg = mamografos_regiao.groupby('Regiao').agg({
-            'Mamografos_existentes': 'sum',
-            'Mamografos_em_uso': 'sum'
-        }).reset_index()
-        mamografos_agg['Utilizacao_%'] = (mamografos_agg['Mamografos_em_uso'] / mamografos_agg['Mamografos_existentes'] * 100).round(1)
+        # CORREÇÃO: Usar apenas UF como chave (mais confiável)
+        # Consolidar dados principais usando UF
+        dados = mortalidade.merge(nunca_mamografia, on='UF', how='left')
+        dados = dados.merge(tempo_laudo, on='UF', how='left')
         
-        dados = dados.merge(mamografos_agg[['Regiao', 'Utilizacao_%']], on='Regiao', how='left')
+        # CORREÇÃO: Usar dados específicos por UF
+        dados = dados.merge(mamografos_uf[['UF', 'Utilizacao_%']], on='UF', how='left')
         
-        # ADIÇÃO: Incluir dados do SUS por UF
+        # Adicionar dados do SUS
         dados = dados.merge(mamografos_sus, on='UF', how='left')
         
         return dados
@@ -526,7 +524,7 @@ def main():
         - `mortalidade_tabela2.csv`
         - `nunca_mamografia_fig15.csv` 
         - `mamografos_regiao_tabela10_total.csv`
-        - `mamografos_regiao_tabela11_SUS.csv`  <!-- NOVO -->
+        - `mamografos_regiao_tabela11_SUS.csv`
         - `tempo_laudo_rastreamento_tabela9.csv`
         """)
         return
@@ -563,8 +561,8 @@ def main():
         **Fontes dos Dados:**
         - 🪦 Tabela 2: Mortalidade (2022)
         - 🩺 Figura 15: Rastreamento (PNS 2019)  
-        - 🖥️ Tabela 10: Mamógrafos (por região)
-        - 🏥 Tabela 11: Mamógrafos SUS  <!-- NOVO -->
+        - 🖥️ Tabela 10: Mamógrafos (por UF)
+        - 🏥 Tabela 11: Mamógrafos SUS
         - ⏱️ Tabela 9: Tempo de laudo
         """)
     
@@ -609,7 +607,7 @@ def main():
     
     with tab5:
         criar_visao_consolidada(dados, estado_selecionado)
-        criar_visao_infraestrutura(dados, estado_selecionado)  # AGORA CORRIGIDA
+        criar_visao_infraestrutura(dados, estado_selecionado)
     
     # Footer
     st.markdown("---")
