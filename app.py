@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Carregar dados - CORRIGIDO
+# Carregar dados - CORREÇÃO COMPLETA
 @st.cache_data
 def carregar_dados():
     try:
@@ -23,25 +23,51 @@ def carregar_dados():
         mamografos_sus = pd.read_csv("mamografos_regiao_tabela11_SUS.csv")
         tempo_laudo = pd.read_csv("tempo_laudo_rastreamento_tabela9.csv")
         
-        # CORREÇÃO: Converter porcentagens para numérico (já estão numéricas nos arquivos)
-        mamografos_uf['Utilizacao_%'] = mamografos_uf['Utilização(%)'].astype(float)
+        # CORREÇÃO: Verificar e converter a coluna Utilização(%) de forma segura
+        st.sidebar.info("🔍 Debug - Verificando dados de mamógrafos:")
         
-        # CORREÇÃO: Usar apenas UF como chave (mais confiável)
+        # Verificar o tipo da coluna
+        st.sidebar.write(f"Tipo da coluna Utilização(%): {mamografos_uf['Utilização(%)'].dtype}")
+        st.sidebar.write(f"Primeiros valores: {mamografos_uf['Utilização(%)'].head().tolist()}")
+        
+        # Converter de forma segura
+        if mamografos_uf['Utilização(%)'].dtype == 'object':
+            # Se for string, tentar converter removendo % e espaços
+            try:
+                mamografos_uf['Utilizacao_%'] = mamografos_uf['Utilização(%)'].str.replace('%', '').str.replace(',', '.').str.strip().astype(float)
+                st.sidebar.success("✅ Conversão com .str.replace bem-sucedida")
+            except Exception as e:
+                st.sidebar.error(f"❌ Erro na conversão com str: {e}")
+                # Tentar conversão direta
+                try:
+                    mamografos_uf['Utilizacao_%'] = pd.to_numeric(mamografos_uf['Utilização(%)'], errors='coerce')
+                    st.sidebar.success("✅ Conversão com pd.to_numeric bem-sucedida")
+                except Exception as e2:
+                    st.sidebar.error(f"❌ Erro na conversão numérica: {e2}")
+                    # Última tentativa: valores fixos
+                    mamografos_uf['Utilizacao_%'] = 0.0
+        else:
+            # Se já for numérico, usar diretamente
+            mamografos_uf['Utilizacao_%'] = mamografos_uf['Utilização(%)'].astype(float)
+            st.sidebar.success("✅ Coluna já era numérica")
+        
+        st.sidebar.write(f"Valores convertidos: {mamografos_uf['Utilizacao_%'].head().tolist()}")
+        
         # Consolidar dados principais usando UF
         dados = mortalidade.merge(nunca_mamografia, on='UF', how='left')
         dados = dados.merge(tempo_laudo, on='UF', how='left')
-        
-        # CORREÇÃO: Usar dados específicos por UF
         dados = dados.merge(mamografos_uf[['UF', 'Utilizacao_%']], on='UF', how='left')
-        
-        # Adicionar dados do SUS
         dados = dados.merge(mamografos_sus, on='UF', how='left')
+        
+        st.sidebar.success(f"✅ Dados carregados: {len(dados)} estados")
         
         return dados
         
     except Exception as e:
         st.error(f"Erro ao carregar dados: {e}")
         return None
+
+# ... (o resto das funções permanece igual) ...
 
 def calcular_score_criticidade(dados):
     """Calcula score de criticidade para cada estado"""
@@ -260,7 +286,7 @@ def criar_visao_rastreamento(dados, estado_selecionado):
         st.success("**BOM**: Menos de 20% de não rastreadas - situação satisfatória")
 
 def criar_visao_infraestrutura(dados, estado_selecionado):
-    """Cria visualização focada em infraestrutura - CORRIGIDA"""
+    """Cria visualização focada em infraestrutura"""
     st.header("🖥️ Infraestrutura de Mamógrafos")
     
     estado_data = dados[dados['UF'] == estado_selecionado].iloc[0]
@@ -300,43 +326,8 @@ def criar_visao_infraestrutura(dados, estado_selecionado):
             "infraestrutura"
         )
     
-    # OBSERVAÇÃO ESPECÍFICA DO ESTADO
-    observacoes = {
-        'ACRE': f"Utilização de {utilizacao_estado:.1f}%, com 19 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'AMAPÁ': f"Utilização de {utilizacao_estado:.1f}%, com 25 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'AMAZONAS': f"Utilização de {utilizacao_estado:.1f}%, com 103 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'PARÁ': f"Utilização de {utilizacao_estado:.1f}%, com 176 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'RONDÔNIA': f"Utilização de {utilizacao_estado:.1f}%, com 60 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'RORAIMA': f"Utilização de {utilizacao_estado:.1f}%, com 9 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'TOCANTINS': f"Utilização de {utilizacao_estado:.1f}%, com 41 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'ALAGOAS': f"Utilização de {utilizacao_estado:.1f}%, com 98 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'BAHIA': f"Utilização de {utilizacao_estado:.1f}%, com 406 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'CEARÁ': f"Utilização de {utilizacao_estado:.1f}%, com 205 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'MARANHÃO': f"Utilização de {utilizacao_estado:.1f}%, com 160 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'PARAÍBA': f"Utilização de {utilizacao_estado:.1f}%, com 163 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'PERNAMBUCO': f"Utilização de {utilizacao_estado:.1f}%, com 224 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'PIAUÍ': f"Utilização de {utilizacao_estado:.1f}%, com 93 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'RIO GRANDE DO NORTE': f"Utilização de {utilizacao_estado:.1f}%, com 86 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'SERGIPE': f"Utilização de {utilizacao_estado:.1f}%, com 65 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'ESPÍRITO SANTO': f"Utilização de {utilizacao_estado:.1f}%, com 136 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'MINAS GERAIS': f"Utilização de {utilizacao_estado:.1f}%, com 694 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'RIO DE JANEIRO': f"Utilização de {utilizacao_estado:.1f}%, com 616 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'SÃO PAULO': f"Utilização de {utilizacao_estado:.1f}%, com 1450 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'PARANÁ': f"⚠️ DADO INCONSISTENTE: Utilização de {utilizacao_estado:.1f}% (impossível), com 318 mamógrafos em uso para apenas 117 existentes, sendo {mamografos_sus} pelo SUS",
-        'RIO GRANDE DO SUL': f"Utilização de {utilizacao_estado:.1f}%, com 407 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'SANTA CATARINA': f"Utilização de {utilizacao_estado:.1f}%, com 268 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'DISTRITO FEDERAL': f"Utilização de {utilizacao_estado:.1f}%, com 120 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'GOIÁS': f"Utilização de {utilizacao_estado:.1f}%, com 266 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'MATO GROSSO': f"Utilização de {utilizacao_estado:.1f}%, com 128 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'MATO GROSSO DO SUL': f"Utilização de {utilizacao_estado:.1f}%, com 84 mamógrafos em uso, sendo {mamografos_sus} pelo SUS"
-    }
-    
-    observacao = observacoes.get(estado_selecionado, f"Utilização de {utilizacao_estado:.1f}%, com {mamografos_sus} mamógrafos pelo SUS")
-    
-    if estado_selecionado == 'PARANÁ':
-        st.error(f"**Observação - {estado_selecionado}:** {observacao}")
-    else:
-        st.info(f"**Observação - {estado_selecionado}:** {observacao}")
+    # Informação adicional
+    st.info(f"**Observação - {estado_selecionado}:** Utilização de {utilizacao_estado:.1f}%, com {mamografos_sus} mamógrafos pelo SUS")
 
 def criar_visao_tempo_laudo(dados, estado_selecionado):
     """Cria visualização focada no tempo de laudo"""
@@ -405,33 +396,6 @@ def criar_visao_tempo_laudo(dados, estado_selecionado):
     )
     
     st.plotly_chart(fig, use_container_width=True)
-    
-    # Análise crítica
-    st.subheader("🌎 Impacto dos Laudos com Mais de 60 Dias")
-    
-    if mais_60 > 30:
-        st.error(f"""
-        **SITUAÇÃO CRÍTICA**: {mais_60:.1f}% dos laudos demoram mais de 60 dias
-        
-        **Impactos:**
-        - 🚨 **Atraso no diagnóstico** e início do tratamento
-        - 📈 **Progressão da doença** para estágios mais avançados
-        - 💔 **Aumento da mortalidade** e piora na qualidade de vida
-        - 🔥 **Sobrecarga** no sistema de saúde terciário
-        
-        **Recomendações:**
-        - Fortalecer a rede de diagnóstico por imagem
-        - Implementar sistema de regulação eficiente
-        - Capacitar profissionais para laudo
-        - Adotar telemedicina para apoio diagnóstico
-        """)
-    elif mais_60 > 20:
-        st.warning(f"""
-        **SITUAÇÃO PREOCUPANTE**: {mais_60:.1f}% dos laudos demoram mais de 60 dias
-        
-        Necessidade de monitoramento constante e ações preventivas para evitar
-        deterioração do serviço.
-        """)
 
 def criar_visao_consolidada(dados, estado_selecionado):
     """Cria visão consolidada com todos os indicadores"""
