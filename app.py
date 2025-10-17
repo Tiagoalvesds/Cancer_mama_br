@@ -302,38 +302,38 @@ def criar_visao_infraestrutura(dados, estado_selecionado):
     
     # OBSERVAÇÃO ESPECÍFICA DO ESTADO
     observacoes = {
-        'AC': f"Utilização de {utilizacao_estado:.1f}%, com 19 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'AP': f"Utilização de {utilizacao_estado:.1f}%, com 25 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'AM': f"Utilização de {utilizacao_estado:.1f}%, com 103 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'PA': f"Utilização de {utilizacao_estado:.1f}%, com 176 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'RO': f"Utilização de {utilizacao_estado:.1f}%, com 60 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'RR': f"Utilização de {utilizacao_estado:.1f}%, com 9 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'TO': f"Utilização de {utilizacao_estado:.1f}%, com 41 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'AL': f"Utilização de {utilizacao_estado:.1f}%, com 98 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'BA': f"Utilização de {utilizacao_estado:.1f}%, com 406 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'CE': f"Utilização de {utilizacao_estado:.1f}%, com 205 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'MA': f"Utilização de {utilizacao_estado:.1f}%, com 160 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'PB': f"Utilização de {utilizacao_estado:.1f}%, com 163 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'PE': f"Utilização de {utilizacao_estado:.1f}%, com 224 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'PI': f"Utilização de {utilizacao_estado:.1f}%, com 93 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'RN': f"Utilização de {utilizacao_estado:.1f}%, com 86 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'SE': f"Utilização de {utilizacao_estado:.1f}%, com 65 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'ES': f"Utilização de {utilizacao_estado:.1f}%, com 136 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'MG': f"Utilização de {utilizacao_estado:.1f}%, com 694 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'RJ': f"Utilização de {utilizacao_estado:.1f}%, com 616 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'SP': f"Utilização de {utilizacao_estado:.1f}%, com 1450 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'PR': f"⚠️ DADO INCONSISTENTE: Utilização de {utilizacao_estado:.1f}% (impossível), com 318 mamógrafos em uso para apenas 117 existentes, sendo {mamografos_sus} pelo SUS",
-        'RS': f"Utilização de {utilizacao_estado:.1f}%, com 407 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'SC': f"Utilização de {utilizacao_estado:.1f}%, com 268 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'DF': f"Utilização de {utilizacao_estado:.1f}%, com 120 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'GO': f"Utilização de {utilizacao_estado:.1f}%, com 266 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'MT': f"Utilização de {utilizacao_estado:.1f}%, com 128 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
-        'MS': f"Utilização de {utilizacao_estado:.1f}%, com 84 mamógrafos em uso, sendo {mamografos_sus} pelo SUS"
+        'ACRE': f"Utilização de {utilizacao_estado:.1f}%, com 19 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'AMAPÁ': f"Utilização de {utilizacao_estado:.1f}%, com 25 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'AMAZONAS': f"Utilização de {utilizacao_estado:.1f}%, com 103 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'PARÁ': f"Utilização de {utilizacao_estado:.1f}%, com 176 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'RONDÔNIA': f"Utilização de {utilizacao_estado:.1f}%, com 60 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'RORAIMA': f"Utilização de {utilizacao_estado:.1f}%, com 9 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'TOCANTINS': f"Utilização de {utilizacao_estado:.1f}%, com 41 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'ALAGOAS': f"Utilização de {utilizacao_estado:.1f}%, com 98 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'BAHIA': f"Utilização de {utilizacao_estado:.1f}%, com 406 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'CEARÁ': f"Utilização de {utilizacao_estado:.1f}%, com 205 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'MARANHÃO': f"Utilização de {utilizacao_estado:.1f}%, com 160 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'PARAÍBA': f"Utilização de {utilizacao_estado:.1f}%, com 163 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'PERNANBUCO': f"Utilização de {utilizacao_estado:.1f}%, com 224 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'PIAUÍ': f"Utilização de {utilizacao_estado:.1f}%, com 93 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'RIO GRANDE DO NORTE': f"Utilização de {utilizacao_estado:.1f}%, com 86 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'SERGIPE': f"Utilização de {utilizacao_estado:.1f}%, com 65 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'ESPÍRITO SANTO': f"Utilização de {utilizacao_estado:.1f}%, com 136 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'MINAS GERAIS': f"Utilização de {utilizacao_estado:.1f}%, com 694 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'RIO DE JANEIRO': f"Utilização de {utilizacao_estado:.1f}%, com 616 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'SÃO PAULO': f"Utilização de {utilizacao_estado:.1f}%, com 1450 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'PARANÁ': f"⚠️ DADO INCONSISTENTE: Utilização de {utilizacao_estado:.1f}% (impossível), com 318 mamógrafos em uso para apenas 117 existentes, sendo {mamografos_sus} pelo SUS",
+        'RIO GRANDE DO SUL': f"Utilização de {utilizacao_estado:.1f}%, com 407 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'SANTA CATARINA': f"Utilização de {utilizacao_estado:.1f}%, com 268 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'DISTRITO FEDERAL': f"Utilização de {utilizacao_estado:.1f}%, com 120 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'GOIÁS': f"Utilização de {utilizacao_estado:.1f}%, com 266 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'MATO GROSSO': f"Utilização de {utilizacao_estado:.1f}%, com 128 mamógrafos em uso, sendo {mamografos_sus} pelo SUS",
+        'MATO GROSSO DO SUL': f"Utilização de {utilizacao_estado:.1f}%, com 84 mamógrafos em uso, sendo {mamografos_sus} pelo SUS"
     }
     
     observacao = observacoes.get(estado_selecionado, f"Utilização de {utilizacao_estado:.1f}%, com {mamografos_sus} mamógrafos pelo SUS")
     
-    if estado_selecionado == 'PR':
+    if estado_selecionado == 'PARANÁ':
         st.error(f"**Observação - {estado_selecionado}:** {observacao}")
     else:
         st.info(f"**Observação - {estado_selecionado}:** {observacao}")
