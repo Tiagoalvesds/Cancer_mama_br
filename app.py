@@ -12,7 +12,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Carregar dados - CORREÇÃO COMPLETA
+# Carregar dados - VERSÃO FINAL CORRIGIDA
 @st.cache_data
 def carregar_dados():
     try:
@@ -23,35 +23,8 @@ def carregar_dados():
         mamografos_sus = pd.read_csv("mamografos_regiao_tabela11_SUS.csv")
         tempo_laudo = pd.read_csv("tempo_laudo_rastreamento_tabela9.csv")
         
-        # CORREÇÃO: Verificar e converter a coluna Utilização(%) de forma segura
-        st.sidebar.info("🔍 Debug - Verificando dados de mamógrafos:")
-        
-        # Verificar o tipo da coluna
-        st.sidebar.write(f"Tipo da coluna Utilização(%): {mamografos_uf['Utilização(%)'].dtype}")
-        st.sidebar.write(f"Primeiros valores: {mamografos_uf['Utilização(%)'].head().tolist()}")
-        
-        # Converter de forma segura
-        if mamografos_uf['Utilização(%)'].dtype == 'object':
-            # Se for string, tentar converter removendo % e espaços
-            try:
-                mamografos_uf['Utilizacao_%'] = mamografos_uf['Utilização(%)'].str.replace('%', '').str.replace(',', '.').str.strip().astype(float)
-                st.sidebar.success("✅ Conversão com .str.replace bem-sucedida")
-            except Exception as e:
-                st.sidebar.error(f"❌ Erro na conversão com str: {e}")
-                # Tentar conversão direta
-                try:
-                    mamografos_uf['Utilizacao_%'] = pd.to_numeric(mamografos_uf['Utilização(%)'], errors='coerce')
-                    st.sidebar.success("✅ Conversão com pd.to_numeric bem-sucedida")
-                except Exception as e2:
-                    st.sidebar.error(f"❌ Erro na conversão numérica: {e2}")
-                    # Última tentativa: valores fixos
-                    mamografos_uf['Utilizacao_%'] = 0.0
-        else:
-            # Se já for numérico, usar diretamente
-            mamografos_uf['Utilizacao_%'] = mamografos_uf['Utilização(%)'].astype(float)
-            st.sidebar.success("✅ Coluna já era numérica")
-        
-        st.sidebar.write(f"Valores convertidos: {mamografos_uf['Utilizacao_%'].head().tolist()}")
+        # CORREÇÃO: Converter a coluna Utilização(%) para numérico
+        mamografos_uf['Utilizacao_%'] = mamografos_uf['Utilização(%)'].astype(float)
         
         # Consolidar dados principais usando UF
         dados = mortalidade.merge(nunca_mamografia, on='UF', how='left')
@@ -59,15 +32,11 @@ def carregar_dados():
         dados = dados.merge(mamografos_uf[['UF', 'Utilizacao_%']], on='UF', how='left')
         dados = dados.merge(mamografos_sus, on='UF', how='left')
         
-        st.sidebar.success(f"✅ Dados carregados: {len(dados)} estados")
-        
         return dados
         
     except Exception as e:
         st.error(f"Erro ao carregar dados: {e}")
         return None
-
-# ... (o resto das funções permanece igual) ...
 
 def calcular_score_criticidade(dados):
     """Calcula score de criticidade para cada estado"""
@@ -396,6 +365,33 @@ def criar_visao_tempo_laudo(dados, estado_selecionado):
     )
     
     st.plotly_chart(fig, use_container_width=True)
+    
+    # Análise crítica
+    st.subheader("🌎 Impacto dos Laudos com Mais de 60 Dias")
+    
+    if mais_60 > 30:
+        st.error(f"""
+        **SITUAÇÃO CRÍTICA**: {mais_60:.1f}% dos laudos demoram mais de 60 dias
+        
+        **Impactos:**
+        - 🚨 **Atraso no diagnóstico** e início do tratamento
+        - 📈 **Progressão da doença** para estágios mais avançados
+        - 💔 **Aumento da mortalidade** e piora na qualidade de vida
+        - 🔥 **Sobrecarga** no sistema de saúde terciário
+        
+        **Recomendações:**
+        - Fortalecer a rede de diagnóstico por imagem
+        - Implementar sistema de regulação eficiente
+        - Capacitar profissionais para laudo
+        - Adotar telemedicina para apoio diagnóstico
+        """)
+    elif mais_60 > 20:
+        st.warning(f"""
+        **SITUAÇÃO PREOCUPANTE**: {mais_60:.1f}% dos laudos demoram mais de 60 dias
+        
+        Necessidade de monitoramento constante e ações preventivas para evitar
+        deterioração do serviço.
+        """)
 
 def criar_visao_consolidada(dados, estado_selecionado):
     """Cria visão consolidada com todos os indicadores"""
